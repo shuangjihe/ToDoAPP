@@ -20,7 +20,16 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    
+    sourceSets {
+        getByName("main") {
+            jniLibs.srcDirs("src/main/jniLibs")
         }
     }
     
@@ -32,11 +41,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    
-    buildFeatures {
-        viewBinding = true
-        buildConfig = true
-    }
 }
 
 dependencies {
@@ -45,8 +49,8 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     
-    // 使用本地 jar 文件
-    implementation(files("libs/bdasr_V3_20210628_cfe8c44.jar"))
+    // 本地 jar 文件
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
