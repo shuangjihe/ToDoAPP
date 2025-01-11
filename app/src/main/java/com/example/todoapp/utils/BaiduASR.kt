@@ -57,12 +57,31 @@ class BaiduASR(private val context: Context) {
     
     var onResultListener: ((String) -> Unit)? = null
 
+    companion object {
+        // 替换成你的百度语音 APP_ID、API_KEY 和 SECRET_KEY
+        private const val APP_ID = "6258298"
+        private const val API_KEY = "ejD0qEmebJb8D72jUlz1Tt3B"
+        private const val SECRET_KEY = "7GJRL7ovIYNJhn1QxTUE1hIhzjoSMSgd"
+    }
+
     init {
         initASR()
     }
 
     private fun initASR() {
         try {
+            // 设置鉴权相关参数
+            val map = HashMap<String, String>().apply {
+                put("appid", APP_ID)
+                put("api_key", API_KEY)
+                put("secret_key", SECRET_KEY)
+            }
+            
+            // 初始化前先进行授权
+            val authManager = EventManagerFactory.create(context, "asr.auth")
+            authManager?.send("asr.auth", JSONObject(map).toString(), null, 0, 0)
+            
+            // 初始化语音识别
             asr = EventManagerFactory.create(context, "asr")
             asr?.registerListener(eventListener)
             Log.d("BaiduASR", "语音识别初始化成功")
