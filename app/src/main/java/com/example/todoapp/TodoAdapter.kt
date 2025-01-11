@@ -1,113 +1,60 @@
 package com.example.todoapp
 
-import android.animation.ValueAnimator
-import android.graphics.Paint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.CheckBox
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.todoapp.databinding.ItemTodoBinding
 
 class TodoAdapter(
-    private val todoList: List<TodoItem>,
-    private val onDeleteClick: (Int) -> Unit,
-    private val onItemClick: (Int) -> Unit
+    private val todos: MutableList<Todo>,
+    private val onDeleteClick: (Int) -> Unit
 ) : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
 
-    class TodoViewHolder(val binding: ItemTodoBinding) : RecyclerView.ViewHolder(binding.root)
+    class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val tvTodoTitle: TextView = itemView.findViewById(R.id.tvTodoTitle)
+        val cbDone: CheckBox = itemView.findViewById(R.id.cbDone)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder {
-        val binding = ItemTodoBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return TodoViewHolder(binding)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_todo, parent, false)
+        return TodoViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
-        val todo = todoList[position]
-        holder.binding.apply {
-            // 设置文本
-            tvTodoText.text = todo.text
+        val todo = todos[position]
+        holder.tvTodoTitle.text = todo.title
+        holder.cbDone.isChecked = todo.isChecked
 
-            // 设置复选框状态（不触发监听器）
-            cbDone.setOnCheckedChangeListener(null)
-            cbDone.isChecked = todo.isCompleted
+        holder.cbDone.setOnCheckedChangeListener { _, isChecked ->
+            todo.isChecked = isChecked
+        }
 
-            // 设置删除线和透明度
-            updateTextAppearance(this, todo.isCompleted)
-
-            // 设置点击事件
-            root.setOnClickListener {
-                onItemClick(position)
-                // 切换复选框状态
-                cbDone.isChecked = !cbDone.isChecked
-            }
-
-            // 设置复选框点击事件
-            cbDone.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked != todo.isCompleted) {
-                    onItemClick(position)
-                    animateCompletion(this, isChecked)
-                }
-            }
-
-            // 设置删除按钮点击事件
-            btnDelete.setOnClickListener {
-                // 添加删除动画
-                root.animate()
-                    .translationX(root.width.toFloat())
-                    .alpha(0f)
-                    .setDuration(300)
-                    .withEndAction {
-                        onDeleteClick(position)
-                    }
-                    .start()
-            }
+        holder.itemView.setOnLongClickListener {
+            onDeleteClick(position)
+            true
         }
     }
 
-    private fun updateTextAppearance(binding: ItemTodoBinding, isCompleted: Boolean) {
-        binding.tvTodoText.apply {
-            if (isCompleted) {
-                paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                alpha = 0.5f
-            } else {
-                paintFlags = paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-                alpha = 1.0f
-            }
-        }
+    override fun getItemCount(): Int {
+        return todos.size
     }
 
-    private fun animateCompletion(binding: ItemTodoBinding, isCompleted: Boolean) {
-        // 创建透明度动画
-        ValueAnimator.ofFloat(
-            if (isCompleted) 1f else 0.5f,
-            if (isCompleted) 0.5f else 1f
-        ).apply {
-            duration = 300
-            interpolator = AccelerateDecelerateInterpolator()
-            addUpdateListener { animator ->
-                binding.tvTodoText.alpha = animator.animatedValue as Float
-            }
-            start()
-        }
-
-        // 缩放动画
-        binding.root.animate()
-            .scaleX(0.95f)
-            .scaleY(0.95f)
-            .setDuration(150)
-            .withEndAction {
-                binding.root.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(150)
-                    .start()
-            }
-            .start()
+    fun addTodo(todo: Todo) {
+        todos.add(todo)
+        notifyItemInserted(todos.size - 1)
     }
 
-    override fun getItemCount() = todoList.size
+    fun deleteTodo(position: Int) {
+        todos.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    fun deleteDoneTodos() {
+        todos.removeAll { todo ->
+            todo.isChecked
+        }
+        notifyDataSetChanged()
+    }
 }
