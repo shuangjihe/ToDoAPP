@@ -12,7 +12,11 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { 
-            url = uri("https://artifact.bytedance.com/repository/maven-releases") 
+            url = uri("https://artifact.bytedance.com/repository/releases")
+            content {
+                // 只从这个仓库获取火山引擎的包
+                includeGroup("com.volcengine")
+            }
         }
     }
 }
