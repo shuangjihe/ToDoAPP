@@ -34,6 +34,9 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    repositories {
+        maven { url 'https://artifact.bytedance.com/repository/releases' }
+    }
 }
 
 dependencies {
@@ -46,4 +49,8 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("com.google.android.material:material:1.11.0")
+    implementation 'com.iflytek.platform:MSC:3.0.0'
+    implementation files('libs/Msc.jar')
+    implementation 'com.baidu.speech:asr:4.16.1'
+    implementation 'com.volcengine.speech:speech:1.0.0'
 }

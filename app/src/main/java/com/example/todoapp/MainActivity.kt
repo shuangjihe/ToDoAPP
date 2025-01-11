@@ -17,6 +17,9 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.PackageManagerCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -265,7 +268,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnVoiceInput.setOnClickListener {
-            startVoiceRecognition()
+            // 检查权限
+            if (checkPermission()) {
+                startListening()
+            } else {
+                requestPermission()
+            }
         }
     }
 
@@ -394,5 +402,35 @@ class MainActivity : AppCompatActivity() {
         mIat?.setParameter(SpeechConstant.DOMAIN, "iat")
         mIat?.setParameter(SpeechConstant.LANGUAGE, "zh_cn")
         mIat?.setParameter(SpeechConstant.ACCENT, "mandarin")
+    }
+
+    // 添加权限检查方法
+    private fun checkPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    // 添加权限请求方法
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.RECORD_AUDIO),
+            1
+        )
+    }
+
+    // 处理权限请求结果
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1 && grantResults.isNotEmpty() 
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startListening()
+        }
     }
 }
