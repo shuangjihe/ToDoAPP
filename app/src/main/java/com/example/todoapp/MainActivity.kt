@@ -20,6 +20,11 @@ class MainActivity : AppCompatActivity() {
     
     companion object {
         private const val PERMISSION_REQUEST_CODE = 1
+        private val REQUIRED_PERMISSIONS = arrayOf(
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,13 +108,5 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         baiduASR.release()
-    }
-
-    companion object {
-        private val REQUIRED_PERMISSIONS = arrayOf(
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        )
     }
 }
