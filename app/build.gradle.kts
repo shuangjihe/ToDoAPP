@@ -44,8 +44,10 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("com.baidu.speech:libspeex:1.0.0")
-    implementation("com.baidu.speech:speech:1.0.0")
+    
+    // 使用本地 jar 文件
+    implementation(files("libs/bdasr_V3_20210628_cfe8c44.jar"))
+    
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
