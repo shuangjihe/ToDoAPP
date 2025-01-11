@@ -60,6 +60,7 @@ dependencies {
             strictly("1.0.0")
         }
     }
+    implementation 'com.bytedance.speechengine:speechengine_asr_tob:{1.0.0}'
     implementation("com.volcengine:asr:1.0.0")
     implementation("com.bytedance.speechengine:speechengine_asr_tob:1.0.0")
     testImplementation("junit:junit:4.13.2")
