@@ -8,6 +8,42 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.example.todoapp.utils.BaiduASR
+// 添加这些导入
+import com.volcengine.speech.*
+import com.volcengine.speech.recognition.*
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.drawable.ColorDrawable
+import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.SpeechRecognizer
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.PackageManagerCompat
+import androidx.core.widget.addTextChangedListener
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.todoapp.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
+import android.view.MotionEvent
+import android.widget.FloatingActionButton
+import androidx.lifecycle.ViewModelProvider
+import android.Manifest
+import android.content.pm.PackageManager
+import com.example.todoapp.utils.BaiduASR
 
 class MainActivity : AppCompatActivity() {
     private lateinit var todoAdapter: TodoAdapter
@@ -60,42 +96,7 @@ class MainActivity : AppCompatActivity() {
         baiduASR.release()
     }
 }
-// 添加这些导入
-import com.volcengine.speech.*
-import com.volcengine.speech.recognition.*
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.drawable.ColorDrawable
-import android.os.Bundle
-import android.speech.RecognitionListener
-import android.speech.SpeechRecognizer
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
-import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.PackageManagerCompat
-import androidx.core.widget.addTextChangedListener
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.todoapp.databinding.ActivityMainBinding
-import com.google.android.material.snackbar.Snackbar
-import android.view.MotionEvent
-import android.widget.FloatingActionButton
-import androidx.lifecycle.ViewModelProvider
-import android.Manifest
-import android.content.pm.PackageManager
-import com.example.todoapp.utils.BaiduASR
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
