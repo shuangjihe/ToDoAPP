@@ -1,5 +1,7 @@
 package com.example.todoapp
-
+// 添加这些导入
+import com.volcengine.speech.*
+import com.volcengine.speech.recognition.*
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Canvas
@@ -36,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     private val filteredList = mutableListOf<TodoItem>()
     private var currentSearchQuery = ""
     private var mIat: SpeechRecognizer? = null
+    private lateinit var speechRecognizer: SpeechRecognizer
 
     companion object {
         private const val SPEECH_REQUEST_CODE = 0
@@ -67,6 +70,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         initXunfei()
+
+        // 检查并请求权限
+        checkPermissions()
+        
+        // 初始化语音识别
+        initSpeechRecognizer()
     }
 
     private fun setupSearch() {
@@ -432,5 +441,66 @@ class MainActivity : AppCompatActivity() {
             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startListening()
         }
+    }
+
+    private fun checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) 
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                1
+            )
+        }
+    }
+    
+    private fun initSpeechRecognizer() {
+        // 初始化配置
+        val config = SpeechConfig().apply {
+            // 设置你的 AppID
+            appId = "你的AppID"
+            // 设置你的 AccessKey
+            accessKey = "你的AccessKey"
+            // 设置你的 SecretKey
+            secretKey = "你的SecretKey"
+        }
+        
+        // 创建识别器
+        speechRecognizer = SpeechRecognizer(this, config)
+        
+        // 设置识别回调
+        speechRecognizer.setListener(object : RecognitionListener {
+            override fun onReadyForSpeech() {
+                // 准备就绪，可以开始说话
+                binding.voiceWaveView.visibility = View.VISIBLE
+                binding.voiceWaveView.startAnimation()
+                binding.btnVoiceInput.visibility = View.GONE
+            }
+            
+            override fun onResults(results: String) {
+                // 识别结果
+                addTodo(results)
+                binding.voiceWaveView.stopAnimation()
+                binding.voiceWaveView.visibility = View.GONE
+                binding.btnVoiceInput.visibility = View.VISIBLE
+            }
+            
+            override fun onError(errorCode: Int, errorMessage: String) {
+                // 发生错误
+                Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                binding.voiceWaveView.stopAnimation()
+                binding.voiceWaveView.visibility = View.GONE
+                binding.btnVoiceInput.visibility = View.VISIBLE
+            }
+        })
+    }
+    
+    private fun startListening() {
+        speechRecognizer.start()
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        speechRecognizer.release()
     }
 }
