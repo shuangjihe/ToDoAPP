@@ -7,67 +7,90 @@ import com.baidu.speech.EventManagerFactory
 import com.baidu.speech.asr.SpeechConstant
 import org.json.JSONObject
 
-class SpeechRecognizer(context: Context) {
+class SpeechRecognizer(private val context: Context) {
     private var asr: EventManager? = null
-    
-    init {
-        // 初始化EventManager对象
-        asr = EventManagerFactory.create(context, "asr")
-        // 注册事件监听器
-        asr?.registerListener(eventListener)
-        
-        // 初始化百度语音识别
-        val params = JSONObject()
-        params.put("pid", 1537) // 1537表示普通话搜索模型
-        params.put("appid", "6258298")
-        params.put("apikey", "ejD0qEmebJb8D72jUlz1Tt3B")
-        params.put("secretkey", "7GJRL7ovIYNJhn1QxTUE1hIhzjoSMSgd")
-        
-        asr?.send(SpeechConstant.ASR_START, params.toString(), null, 0, 0)
-    }
-    
-    var onResultListener: ((String) -> Unit)? = null
-    
-    private val eventListener = EventListener { name, params, data, offset, length ->
+    private var eventListener: EventListener = EventListener { name, params, _, _, _ ->
         when (name) {
             SpeechConstant.CALLBACK_EVENT_ASR_READY -> {
-                // 引擎就绪
+                println("引擎就绪，可以开始说话")
             }
             SpeechConstant.CALLBACK_EVENT_ASR_BEGIN -> {
-                // 检测到说话开始
+                println("检测到用户的已经开始说话")
             }
             SpeechConstant.CALLBACK_EVENT_ASR_END -> {
-                // 检测到说话结束
+                println("检测到用户的已经停止说话")
             }
             SpeechConstant.CALLBACK_EVENT_ASR_PARTIAL -> {
                 // 识别结果
-                try {
-                    val json = JSONObject(params)
-                    val result = json.optString("results_recognition", "")
-                    onResultListener?.invoke(result)
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                val json = JSONObject(params)
+                json.optJSONArray("results_recognition")?.let {
+                    if (it.length() > 0) {
+                        val result = it.getString(0)
+                        println("识别结果: $result")
+                        onResultListener?.invoke(result)
+                    }
                 }
             }
             SpeechConstant.CALLBACK_EVENT_ASR_FINISH -> {
-                // 识别结束
+                println("识别结束")
             }
             SpeechConstant.CALLBACK_EVENT_ASR_ERROR -> {
-                // 识别错误
+                println("识别错误: $params")
             }
         }
     }
     
+    var onResultListener: ((String) -> Unit)? = null
+
+    init {
+        initASR()
+    }
+
+    private fun initASR() {
+        try {
+            asr = EventManagerFactory.create(context, "asr")
+            asr?.registerListener(eventListener)
+            println("语音识别初始化成功")
+        } catch (e: Exception) {
+            println("语音识别初始化失败: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
     fun startListening() {
-        asr?.send(SpeechConstant.ASR_START, null, null, 0, 0)
+        try {
+            val params = JSONObject()
+            params.put("pid", 1537) // 普通话搜索模型
+            params.put("accept-audio-volume", false)
+            params.put("disable-punctuation", true)
+            params.put("accept-audio-data", true)
+            
+            asr?.send(SpeechConstant.ASR_START, params.toString(), null, 0, 0)
+            println("开始语音识别")
+        } catch (e: Exception) {
+            println("开始语音识别失败: ${e.message}")
+            e.printStackTrace()
+        }
     }
-    
+
     fun stopListening() {
-        asr?.send(SpeechConstant.ASR_STOP, null, null, 0, 0)
+        try {
+            asr?.send(SpeechConstant.ASR_STOP, null, null, 0, 0)
+            println("停止语音识别")
+        } catch (e: Exception) {
+            println("停止语音识别失败: ${e.message}")
+            e.printStackTrace()
+        }
     }
-    
+
     fun release() {
-        asr?.unregisterListener(eventListener)
-        asr = null
+        try {
+            asr?.unregisterListener(eventListener)
+            asr = null
+            println("释放语音识别资源")
+        } catch (e: Exception) {
+            println("释放语音识别资源失败: ${e.message}")
+            e.printStackTrace()
+        }
     }
 } 
