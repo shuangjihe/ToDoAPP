@@ -4,160 +4,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTodoItems"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/bottomContainer"
-        android:orientation="vertical"
-        android:background="#F5F5F5">
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/etTodoTitle"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- 标题栏 -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="待办事项"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:padding="16dp"
-            android:background="#FFFFFF"
-            android:elevation="4dp"/>
-
-        <!-- 搜索框 -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="8dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_search"
-                    android:tint="#757575"
-                    android:layout_marginStart="8dp"/>
-
-                <EditText
-                    android:id="@+id/etSearch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:hint="搜索待办事项"
-                    android:padding="8dp"
-                    android:textSize="16sp"
-                    android:maxLines="1"
-                    android:imeOptions="actionSearch"
-                    android:inputType="text"/>
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- 输入区域 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:background="#FFFFFF"
-            android:elevation="4dp">
-
-            <EditText
-                android:id="@+id/etTodo"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="添加新的待办事项"
-                android:background="@null"
-                android:padding="8dp"
-                android:textSize="16sp"
-                android:layout_marginEnd="8dp"
-                android:imeOptions="actionDone"
-                android:inputType="text"/>
-
-            <Button
-                android:id="@+id/btnAdd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="添加"
-                android:textColor="#FFFFFF"
-                android:backgroundTint="#2196F3"/>
-        </LinearLayout>
-
-        <!-- 空状态提示 -->
-        <TextView
-            android:id="@+id/tvEmpty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="还没有待办事项\n点击添加按钮创建新的待办"
-            android:gravity="center"
-            android:textSize="16sp"
-            android:textColor="#666666"
-            android:layout_marginTop="32dp"
-            android:visibility="gone"/>
-
-        <!-- 下拉刷新和列表区域 -->
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefresh"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvTodos"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
-                android:paddingHorizontal="8dp"
-                android:clipToPadding="false"/>
-
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    </LinearLayout>
-
-    <!-- 底部语音输入区域 -->
-    <FrameLayout
-        android:id="@+id/bottomContainer"
-        android:layout_width="match_parent"
+    <EditText
+        android:id="@+id/etTodoTitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:padding="16dp">
+        android:hint="输入待办事项"
+        app:layout_constraintBottom_toTopOf="@+id/btnAddTodo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <com.example.todoapp.VoiceWaveView
-            android:id="@+id/voiceWaveView"
-            android:layout_width="120dp"
-            android:layout_height="60dp"
-            android:layout_gravity="center"
-            android:visibility="gone"/>
+    <Button
+        android:id="@+id/btnAddTodo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="添加待办"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnDeleteDoneTodos"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/btnVoiceInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@android:drawable/ic_btn_speak_now"
-            app:fabSize="normal"
-            app:backgroundTint="#2196F3"
-            app:tint="#FFFFFF"/>
+    <Button
+        android:id="@+id/btnDeleteDoneTodos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="删除已完成"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnAddTodo" />
 
-    </FrameLayout>
-
-    <!-- 添加语音识别按钮 -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnVoiceRecognition"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_mic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="语音识别" />
+        android:src="@android:drawable/ic_btn_speak_now"
+        app:layout_constraintBottom_toTopOf="@+id/etTodoTitle"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
