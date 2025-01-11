@@ -32,6 +32,8 @@ import com.google.android.material.snackbar.Snackbar
 import android.view.MotionEvent
 import android.widget.FloatingActionButton
 import androidx.lifecycle.ViewModelProvider
+import android.Manifest
+import android.content.pm.PackageManager
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -43,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var speechRecognizer: SpeechRecognizer
     private var recognizedText = ""
     private lateinit var todoViewModel: TodoViewModel
+    private val PERMISSION_REQUEST_CODE = 123
 
     companion object {
         private const val SPEECH_REQUEST_CODE = 0
@@ -77,8 +80,15 @@ class MainActivity : AppCompatActivity() {
 
         initXunfei()
 
-        // 检查并请求权限
-        checkPermissions()
+        // 请求录音权限
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) 
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                PERMISSION_REQUEST_CODE
+            )
+        }
         
         // 初始化语音识别
         initSpeechRecognizer()
@@ -473,9 +483,14 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1 && grantResults.isNotEmpty() 
-            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startListening()
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 权限已授予
+                Toast.makeText(this, "录音权限已授予", Toast.LENGTH_SHORT).show()
+            } else {
+                // 权限被拒绝
+                Toast.makeText(this, "需要录音权限才能使用语音识别功能", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
