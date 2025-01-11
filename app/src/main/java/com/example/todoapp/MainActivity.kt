@@ -7,12 +7,15 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.speech.RecognizerIntent
+import android.speech.RecognitionListener
+import android.speech.SpeechRecognizer
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -21,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todoapp.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -28,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private val todoList = mutableListOf<TodoItem>()
     private val filteredList = mutableListOf<TodoItem>()
     private var currentSearchQuery = ""
+    private var mIat: SpeechRecognizer? = null
 
     companion object {
         private const val SPEECH_REQUEST_CODE = 0
@@ -35,7 +40,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        // 添加科大讯飞初始化代码
+        SpeechUtility.createUtility(this, "appid=0bfd7d23")
 
+        // 添加讯飞初始化
+        initXunfei()
+        
         try {
             binding = ActivityMainBinding.inflate(layoutInflater)
             setContentView(binding.root)
@@ -50,6 +62,8 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e("TodoAPP-Test", "Error in onCreate: ${e.message}")
         }
+
+        initXunfei()
     }
 
     private fun setupSearch() {
@@ -366,5 +380,19 @@ class MainActivity : AppCompatActivity() {
         } else {
             binding.tvEmpty.visibility = View.GONE
         }
+    }
+
+    private fun initXunfei() {
+        // 初始化识别对象
+        mIat = SpeechRecognizer.createRecognizer(this) { code ->
+            if (code != ErrorCode.SUCCESS) {
+                Toast.makeText(this, "初始化失败", Toast.LENGTH_SHORT).show()
+            }
+        }
+        
+        // 设置语音识别参数
+        mIat?.setParameter(SpeechConstant.DOMAIN, "iat")
+        mIat?.setParameter(SpeechConstant.LANGUAGE, "zh_cn")
+        mIat?.setParameter(SpeechConstant.ACCENT, "mandarin")
     }
 }
