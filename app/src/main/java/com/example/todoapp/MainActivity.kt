@@ -455,14 +455,10 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun initSpeechRecognizer() {
-        // 初始化配置
         val config = SpeechConfig().apply {
-            // 设置你的 AppID
-            appId = "你的AppID"
-            // 设置你的 AccessKey
-            accessKey = "你的AccessKey"
-            // 设置你的 SecretKey
-            secretKey = "你的SecretKey"
+            appId = BuildConfig.VOLC_APP_ID
+            accessKey = BuildConfig.VOLC_ACCESS_KEY
+            secretKey = BuildConfig.VOLC_SECRET_KEY
         }
         
         // 创建识别器

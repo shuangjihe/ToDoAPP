@@ -17,12 +17,15 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
         // 从 local.properties 读取配置
-        val properties = java.util.Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-        
-        buildConfigField("String", "VOLC_APP_ID", "\"${properties.getProperty("VOLC_APP_ID", "")}\"")
-        buildConfigField("String", "VOLC_ACCESS_KEY", "\"${properties.getProperty("VOLC_ACCESS_KEY", "")}\"")
-        buildConfigField("String", "VOLC_SECRET_KEY", "\"${properties.getProperty("VOLC_SECRET_KEY", "")}\"")
+        val localProperties = project.rootProject.file("local.properties")
+        if (localProperties.exists()) {
+            val properties = org.jetbrains.kotlin.konan.properties.Properties()
+            properties.load(localProperties.inputStream())
+            
+            buildConfigField("String", "VOLC_APP_ID", "\"${properties.getProperty("VOLC_APP_ID", "")}\"")
+            buildConfigField("String", "VOLC_ACCESS_KEY", "\"${properties.getProperty("VOLC_ACCESS_KEY", "")}\"")
+            buildConfigField("String", "VOLC_SECRET_KEY", "\"${properties.getProperty("VOLC_SECRET_KEY", "")}\"")
+        }
     }
 
     buildTypes {
