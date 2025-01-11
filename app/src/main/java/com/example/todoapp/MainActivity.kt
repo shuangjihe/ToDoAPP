@@ -25,7 +25,12 @@ class MainActivity : AppCompatActivity() {
             etTodoTitle.setText(result)
         }
 
-        todoAdapter = TodoAdapter(mutableListOf())
+        todoAdapter = TodoAdapter(
+            todos = mutableListOf(),
+            onDeleteClick = { position ->
+                todoAdapter.deleteTodo(position)
+            }
+        )
 
         val rvTodoItems = findViewById<RecyclerView>(R.id.rvTodoItems)
         rvTodoItems.adapter = todoAdapter
