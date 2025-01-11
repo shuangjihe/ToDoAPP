@@ -2,16 +2,11 @@ package com.example.todoapp
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.content.Intent
-import android.content.UriPermission
-import android.net.Uri
-import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -23,17 +18,17 @@ import com.example.todoapp.utils.BaiduASR
 class MainActivity : AppCompatActivity() {
     private lateinit var todoAdapter: TodoAdapter
     private lateinit var baiduASR: BaiduASR
-    
-    companion object {
-        private const val PERMISSION_REQUEST_CODE = 1
-        private val REQUIRED_PERMISSIONS = arrayOf(
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.MODIFY_AUDIO_SETTINGS,
-            Manifest.permission.ACCESS_NETWORK_STATE,
-            Manifest.permission.ACCESS_WIFI_STATE
-        )
+
+    // 注册权限请求启动器
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions.all { it.value }) {
+            // 所有权限都已获取
+            startVoiceRecognition()
+        } else {
+            Toast.makeText(this, "需要所有权限才能使用语音识别", Toast.LENGTH_SHORT).show()
+        }
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,84 +73,39 @@ class MainActivity : AppCompatActivity() {
         }
 
         fabVoice.setOnClickListener {
-            // 检查权限
-            if (checkPermissions()) {
-                // 开始语音识别
-                baiduASR.startListening()
-            } else {
-                requestPermissions()
-            }
+            checkAndRequestPermissions()
         }
     }
 
-    private fun checkPermissions(): Boolean {
-        return REQUIRED_PERMISSIONS.all {
-            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+    private fun checkAndRequestPermissions() {
+        if (REQUIRED_PERMISSIONS.all { permission ->
+            ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+        }) {
+            // 已经有所有权限，直接开始语音识别
+            startVoiceRecognition()
+        } else {
+            // 请求权限
+            requestPermissionLauncher.launch(REQUIRED_PERMISSIONS)
         }
     }
 
-    private fun requestPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // 对于每个权限，检查是否需要显示解释
-            val shouldShowRationale = REQUIRED_PERMISSIONS.any { permission ->
-                ActivityCompat.shouldShowRequestPermissionRationale(this, permission)
-            }
-
-            if (shouldShowRationale) {
-                // 显示解释对话框
-                AlertDialog.Builder(this)
-                    .setTitle("需要权限")
-                    .setMessage("语音识别功能需要麦克风和存储权限才能正常工作")
-                    .setPositiveButton("确定") { _, _ ->
-                        ActivityCompat.requestPermissions(
-                            this,
-                            REQUIRED_PERMISSIONS,
-                            PERMISSION_REQUEST_CODE
-                        )
-                    }
-                    .setNegativeButton("取消", null)
-                    .show()
-            } else {
-                // 直接请求权限
-                ActivityCompat.requestPermissions(
-                    this,
-                    REQUIRED_PERMISSIONS,
-                    PERMISSION_REQUEST_CODE
-                )
-            }
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                // 所有权限都已获取，开始语音识别
-                baiduASR.startListening()
-            } else {
-                // 显示设置对话框
-                AlertDialog.Builder(this)
-                    .setTitle("权限未授予")
-                    .setMessage("请在设置中手动开启所需权限，否则语音识别功能将无法使用")
-                    .setPositiveButton("去设置") { _, _ ->
-                        // 打开应用设置页面
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                        val uri = Uri.fromParts("package", packageName, null)
-                        intent.data = uri
-                        startActivity(intent)
-                    }
-                    .setNegativeButton("取消", null)
-                    .show()
-            }
-        }
+    private fun startVoiceRecognition() {
+        baiduASR.startListening()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         baiduASR.release()
+    }
+
+    companion object {
+        private val REQUIRED_PERMISSIONS = arrayOf(
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.MODIFY_AUDIO_SETTINGS
+        )
     }
 }
