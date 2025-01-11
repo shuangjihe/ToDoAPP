@@ -15,17 +15,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
-        // 从 local.properties 读取配置
-        val localProperties = project.rootProject.file("local.properties")
-        if (localProperties.exists()) {
-            val properties = org.jetbrains.kotlin.konan.properties.Properties()
-            properties.load(localProperties.inputStream())
-            
-            buildConfigField("String", "VOLC_APP_ID", "\"${properties.getProperty("VOLC_APP_ID", "")}\"")
-            buildConfigField("String", "VOLC_ACCESS_KEY", "\"${properties.getProperty("VOLC_ACCESS_KEY", "")}\"")
-            buildConfigField("String", "VOLC_SECRET_KEY", "\"${properties.getProperty("VOLC_SECRET_KEY", "")}\"")
-        }
     }
 
     buildTypes {
@@ -57,7 +46,6 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.baidu.speech:libspeex:1.0.0")
     implementation("com.baidu.speech:speech:1.0.0")
-    implementation 'com.bytedance.speechengine:speechengine_asr_tob:{1.0.0}'
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
