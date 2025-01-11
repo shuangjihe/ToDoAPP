@@ -11,12 +11,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { 
-            url = uri("https://artifact.bytedance.com/repository/maven-releases/")
-            credentials {
-                username = "15937159166"
-                password = "wmy@1990"
-            }
+        maven {
+            url = uri("https://artifact.bytedance.com/repository/Volcengine/")
         }
     }
 }
