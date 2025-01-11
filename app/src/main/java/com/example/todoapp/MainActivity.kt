@@ -34,6 +34,7 @@ import android.widget.FloatingActionButton
 import androidx.lifecycle.ViewModelProvider
 import android.Manifest
 import android.content.pm.PackageManager
+import com.example.todoapp.utils.BaiduASR
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity() {
     private var recognizedText = ""
     private lateinit var todoViewModel: TodoViewModel
     private val PERMISSION_REQUEST_CODE = 123
+    private lateinit var baiduASR: BaiduASR
 
     companion object {
         private const val SPEECH_REQUEST_CODE = 0
@@ -102,17 +104,13 @@ class MainActivity : AppCompatActivity() {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         // 按下按钮时开始识别
-                        recognizedText = ""
-                        speechRecognizer.startListening()
+                        baiduASR.startListening()
                         view.animate().scaleX(0.9f).scaleY(0.9f).setDuration(200).start()
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        // 松开按钮时停止识别并创建待办事项
-                        speechRecognizer.stopListening()
+                        // 松开按钮时停止识别
+                        baiduASR.stopListening()
                         view.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
-                        if (recognizedText.isNotEmpty()) {
-                            createTodoItem(recognizedText)
-                        }
                     }
                 }
                 true
@@ -121,6 +119,12 @@ class MainActivity : AppCompatActivity() {
 
         speechRecognizer.onResultListener = { result ->
             recognizedText = result
+        }
+
+        baiduASR = BaiduASR(this)
+        baiduASR.onResultListener = { result ->
+            // 处理识别结果
+            createTodoItem(result)
         }
     }
 
@@ -552,6 +556,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         speechRecognizer.release()
+        baiduASR.release()
     }
 
     // 创建待办事项的方法

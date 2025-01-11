@@ -19,3 +19,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# 百度语音识别 SDK 混淆规则
+-keep class com.baidu.speech.**{*;}
