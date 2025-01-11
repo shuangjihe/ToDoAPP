@@ -19,6 +19,7 @@ import com.example.todoapp.utils.BaiduASR
 class MainActivity : AppCompatActivity() {
     private lateinit var todoAdapter: TodoAdapter
     private lateinit var baiduASR: BaiduASR
+    private var isListening = false
 
     // 注册权限请求启动器
     private val requestPermissionLauncher = registerForActivityResult(
@@ -39,9 +40,14 @@ class MainActivity : AppCompatActivity() {
         // 初始化语音识别
         baiduASR = BaiduASR(this)
         baiduASR.onResultListener = { result ->
-            // 处理语音识别结果
-            val etTodoTitle = findViewById<EditText>(R.id.etTodoTitle)
-            etTodoTitle.setText(result)
+            runOnUiThread {
+                if (result.isNotEmpty()) {
+                    // 处理语音识别结果
+                    val todo = Todo(result)
+                    todoAdapter.addTodo(todo)
+                    Toast.makeText(this, "已添加：$result", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         todoAdapter = TodoAdapter(
@@ -74,7 +80,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         fabVoice.setOnClickListener {
-            checkAndRequestPermissions()
+            if (!isListening) {
+                checkAndRequestPermissions()
+            } else {
+                stopVoiceRecognition()
+            }
         }
     }
 
@@ -91,7 +101,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startVoiceRecognition() {
+        isListening = true
         baiduASR.startListening()
+        Toast.makeText(this, "请说出待办事项", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun stopVoiceRecognition() {
+        isListening = false
+        baiduASR.stopListening()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopVoiceRecognition()
     }
 
     override fun onDestroy() {
