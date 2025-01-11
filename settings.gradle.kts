@@ -12,7 +12,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { 
-            url = uri("https://artifact.bytedance.com/repository/maven-releases/")
+            url = uri("https://artifact.bytedance.com/repository/Volcengine/")
         }
     }
 }
