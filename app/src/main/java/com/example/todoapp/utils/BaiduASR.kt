@@ -17,60 +17,85 @@ class BaiduASR(private val context: Context) {
     }
 
     private fun initASR() {
-        // 初始化EventManager对象
-        asr = EventManagerFactory.create(context, "asr")
-        
-        // 注册事件监听器
-        listener = EventListener { name, params, _, _, _ ->
-            when (name) {
-                SpeechConstant.CALLBACK_EVENT_ASR_READY -> {
-                    // 引擎就绪，可以开始说话
-                }
-                SpeechConstant.CALLBACK_EVENT_ASR_BEGIN -> {
-                    // 检测到用户的已经开始说话
-                }
-                SpeechConstant.CALLBACK_EVENT_ASR_END -> {
-                    // 检测到用户的已经停止说话
-                }
-                SpeechConstant.CALLBACK_EVENT_ASR_PARTIAL -> {
-                    // 识别结果
-                    val json = JSONObject(params)
-                    json.optJSONArray("results_recognition")?.let {
-                        if (it.length() > 0) {
-                            val result = it.getString(0)
-                            onResultListener?.invoke(result)
+        try {
+            // 初始化EventManager对象
+            asr = EventManagerFactory.create(context, "asr")
+            
+            // 注册事件监听器
+            listener = EventListener { name, params, _, _, _ ->
+                when (name) {
+                    SpeechConstant.CALLBACK_EVENT_ASR_READY -> {
+                        println("引擎就绪，可以开始说话")
+                    }
+                    SpeechConstant.CALLBACK_EVENT_ASR_BEGIN -> {
+                        println("检测到用户的已经开始说话")
+                    }
+                    SpeechConstant.CALLBACK_EVENT_ASR_END -> {
+                        println("检测到用户的已经停止说话")
+                    }
+                    SpeechConstant.CALLBACK_EVENT_ASR_PARTIAL -> {
+                        // 识别结果
+                        val json = JSONObject(params)
+                        json.optJSONArray("results_recognition")?.let {
+                            if (it.length() > 0) {
+                                val result = it.getString(0)
+                                println("识别结果: $result")
+                                onResultListener?.invoke(result)
+                            }
                         }
                     }
-                }
-                SpeechConstant.CALLBACK_EVENT_ASR_FINISH -> {
-                    // 识别结束（可能是错误导致）
-                }
-                SpeechConstant.CALLBACK_EVENT_ASR_ERROR -> {
-                    // 识别错误
+                    SpeechConstant.CALLBACK_EVENT_ASR_FINISH -> {
+                        println("识别结束")
+                    }
+                    SpeechConstant.CALLBACK_EVENT_ASR_ERROR -> {
+                        println("识别错误: $params")
+                    }
                 }
             }
+            
+            asr?.registerListener(listener)
+            println("语音识别初始化成功")
+        } catch (e: Exception) {
+            println("语音识别初始化失败: ${e.message}")
+            e.printStackTrace()
         }
-        
-        asr?.registerListener(listener)
     }
 
     fun startListening() {
-        val params = JSONObject()
-        params.put("pid", 1537) // 普通话搜索模型
-        params.put("appid", "6258298")
-        params.put("appkey", "ejD0qEmebJb8D72jUlz1Tt3B")
-        params.put("secret", "7GJRL7ovIYNJhn1QxTUE1hIhzjoSMSgd")
-        
-        asr?.send(SpeechConstant.ASR_START, params.toString(), null, 0, 0)
+        try {
+            val params = JSONObject()
+            params.put("pid", 1537) // 普通话搜索模型
+            params.put("accept-audio-volume", false)
+            params.put("disable-punctuation", true)
+            params.put("accept-audio-data", true)
+            
+            asr?.send(SpeechConstant.ASR_START, params.toString(), null, 0, 0)
+            println("开始语音识别")
+        } catch (e: Exception) {
+            println("开始语音识别失败: ${e.message}")
+            e.printStackTrace()
+        }
     }
 
     fun stopListening() {
-        asr?.send(SpeechConstant.ASR_STOP, null, null, 0, 0)
+        try {
+            asr?.send(SpeechConstant.ASR_STOP, null, null, 0, 0)
+            println("停止语音识别")
+        } catch (e: Exception) {
+            println("停止语音识别失败: ${e.message}")
+            e.printStackTrace()
+        }
     }
 
     fun release() {
-        listener?.let { asr?.unregisterListener(it) }
-        asr = null
-        listener = null
+        try {
+            listener?.let { asr?.unregisterListener(it) }
+            asr = null
+            listener = null
+            println("释放语音识别资源")
+        } catch (e: Exception) {
+            println("释放语音识别资源失败: ${e.message}")
+            e.printStackTrace()
+        }
     }
 } 
