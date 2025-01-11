@@ -71,15 +71,15 @@ class BaiduASR(private val context: Context) {
     private fun initASR() {
         try {
             // 设置鉴权相关参数
-            val map = HashMap<String, String>().apply {
-                put("appid", APP_ID)
-                put("api_key", API_KEY)
-                put("secret_key", SECRET_KEY)
-            }
+            val map = mapOf(
+                "appid" to APP_ID,
+                "api_key" to API_KEY,
+                "secret_key" to SECRET_KEY
+            )
             
             // 初始化前先进行授权
             val authManager = EventManagerFactory.create(context, "asr.auth")
-            authManager?.send("asr.auth", JSONObject(map).toString(), null, 0, 0)
+            authManager?.send("asr.auth", JSONObject(map as Map<*, *>).toString(), null, 0, 0)
             
             // 初始化语音识别
             asr = EventManagerFactory.create(context, "asr")
