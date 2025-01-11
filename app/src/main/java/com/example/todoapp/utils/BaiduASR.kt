@@ -72,15 +72,15 @@ class BaiduASR(private val context: Context) {
         try {
             // 设置鉴权相关参数
             val params = mapOf(
-                SpeechConstant.APP_ID to APP_ID,
-                SpeechConstant.APP_KEY to API_KEY,
-                SpeechConstant.SECRET to SECRET_KEY
+                "appid" to APP_ID,
+                "appkey" to API_KEY,
+                "secret" to SECRET_KEY
             )
             
             // 初始化语音识别
             asr = EventManagerFactory.create(context, "asr")
             // 先进行授权
-            asr?.send(SpeechConstant.ASR_AUTH, JSONObject(params as Map<*, *>).toString(), null, 0, 0)
+            asr?.send("asr.auth", JSONObject(params as Map<*, *>).toString(), null, 0, 0)
             // 注册监听器
             asr?.registerListener(eventListener)
             Log.d("BaiduASR", "语音识别初始化成功")
