@@ -55,14 +55,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("com.volcengine:speech:1.0.0") {
-        version {
-            strictly("1.0.0")
-        }
-    }
+    implementation("com.baidu.speech:libspeex:1.0.0")
+    implementation("com.baidu.speech:speech:1.0.0")
     implementation 'com.bytedance.speechengine:speechengine_asr_tob:{1.0.0}'
-    implementation("com.volcengine:asr:1.0.0")
-    implementation("com.bytedance.speechengine:speechengine_asr_tob:1.0.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

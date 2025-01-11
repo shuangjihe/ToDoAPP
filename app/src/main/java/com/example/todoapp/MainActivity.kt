@@ -29,7 +29,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todoapp.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
-import org.json.JSONObject
+import android.view.MotionEvent
+import android.widget.FloatingActionButton
+import androidx.lifecycle.ViewModelProvider
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -39,6 +41,8 @@ class MainActivity : AppCompatActivity() {
     private var currentSearchQuery = ""
     private var mIat: SpeechRecognizer? = null
     private lateinit var speechRecognizer: SpeechRecognizer
+    private var recognizedText = ""
+    private lateinit var todoViewModel: TodoViewModel
 
     companion object {
         private const val SPEECH_REQUEST_CODE = 0
@@ -47,6 +51,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        
+        todoViewModel = ViewModelProvider(this)[TodoViewModel::class.java]
         
         // 添加科大讯飞初始化代码
         SpeechUtility.createUtility(this, "appid=0bfd7d23")
@@ -76,6 +82,36 @@ class MainActivity : AppCompatActivity() {
         
         // 初始化语音识别
         initSpeechRecognizer()
+
+        // 初始化语音识别器
+        speechRecognizer = SpeechRecognizer(this)
+        
+        // 设置语音识别按钮的触摸事件
+        findViewById<FloatingActionButton>(R.id.btnVoiceRecognition).apply {
+            setOnTouchListener { view, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        // 按下按钮时开始识别
+                        recognizedText = ""
+                        speechRecognizer.startListening()
+                        view.animate().scaleX(0.9f).scaleY(0.9f).setDuration(200).start()
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        // 松开按钮时停止识别并创建待办事项
+                        speechRecognizer.stopListening()
+                        view.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
+                        if (recognizedText.isNotEmpty()) {
+                            createTodoItem(recognizedText)
+                        }
+                    }
+                }
+                true
+            }
+        }
+
+        speechRecognizer.onResultListener = { result ->
+            recognizedText = result
+        }
     }
 
     private fun setupSearch() {
@@ -456,9 +492,12 @@ class MainActivity : AppCompatActivity() {
     
     private fun initSpeechRecognizer() {
         val config = SpeechConfig().apply {
-            appId = BuildConfig.VOLC_APP_ID
-            accessKey = BuildConfig.VOLC_ACCESS_KEY
-            secretKey = BuildConfig.VOLC_SECRET_KEY
+            // 设置你的 AppID
+            appId = "你的AppID"
+            // 设置你的 AccessKey
+            accessKey = "你的AccessKey"
+            // 设置你的 SecretKey
+            secretKey = "你的SecretKey"
         }
         
         // 创建识别器
@@ -498,5 +537,22 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         speechRecognizer.release()
+    }
+
+    // 创建待办事项的方法
+    private fun createTodoItem(text: String) {
+        // 创建一个新的 Todo 对象
+        val todo = Todo(
+            title = text,
+            description = "",  // 可以根据需要设置描述
+            priority = Priority.LOW,  // 默认优先级
+            timestamp = System.currentTimeMillis()
+        )
+        
+        // 使用 ViewModel 插入新的待办事项
+        todoViewModel.insert(todo)
+        
+        // 可以添加一个提示
+        Toast.makeText(this, "已添加：$text", Toast.LENGTH_SHORT).show()
     }
 }
